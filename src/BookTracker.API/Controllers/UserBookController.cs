@@ -10,11 +10,11 @@ namespace BookTracker.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class UserBooksController : ControllerBase
+public class UserBookController : ControllerBase
 {
     private readonly IUserBookRepository _repo;
 
-    public UserBooksController(IUserBookRepository repo)
+    public UserBookController(IUserBookRepository repo)
     {
         _repo = repo;
     }

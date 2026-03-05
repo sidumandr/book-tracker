@@ -69,18 +69,22 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 //-cors
-builder.Services.AddCors(opt =>
-    opt.AddPolicy("AllowFrontend", p => 
-    p.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod()));
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowNextjs",
+        policy => policy.WithOrigins("http://localhost:3000") 
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
+});
 
 var app = builder.Build();
 
-//Middleware Pipeline
-app.UseSwagger();
-app.UseSwaggerUI();
-app.UseCors("AllowFrontend");
+app.UseRouting(); 
+
+app.UseCors("AllowNextjs");
+
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapControllers();
 
+app.MapControllers();
 app.Run();
