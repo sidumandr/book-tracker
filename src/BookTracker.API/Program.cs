@@ -42,7 +42,8 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("ProductionPolicy", policy =>
     {
-        policy.WithOrigins("https://book-tracker-ui.vercel.app") // Vercel domain
+        policy.WithOrigins("https://book-tracker-ui.vercel.app",
+                            "https://book-tracker-71834s3nu-sidumandrs-projects.vercel.app") // Vercel domain
               .AllowAnyMethod()
               .AllowAnyHeader();
               
