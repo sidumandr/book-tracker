@@ -55,6 +55,26 @@ Vercel Dashboard → Proje → **Settings → Environment Variables**.
 
 CORS backend’de (Render’daki API) ayarlı. Vercel’de ekstra CORS ayarı yapmana gerek yok.
 
+### 3. Frontend’te API URL
+
+- `NEXT_PUBLIC_*` değişkenleri **build sırasında** gömülür; sadece env’i kaydetmek yetmez, **Redeploy** gerekir.
+- Değer tam olarak: `https://book-tracker-api-wjm0.onrender.com/api` (sonunda `/api`, `https` ile).
+- Yanlış veya eksikse istekler `localhost:5002`’e gider, 400/404 alırsın.
+
+---
+
+## Docker (Render’da backend Docker ile çalışıyorsa)
+
+### 1. Port
+
+- Render, container’a **PORT** env değişkeni verir (genelde 10000). `Dockerfile` artık bu portu kullanacak şekilde ayarlı.
+- Render’da **Docker Command** boş bırakılırsa image’daki `CMD` kullanılır; ekstra bir şey yapmana gerek yok.
+
+### 2. Env’ler container’a geçiyor mu?
+
+- Render’da tanımladığın env’ler (ConnectionStrings, Jwt, vb.) container **runtime**’da otomatik verilir. Build’te değil, çalışırken okunur.
+- Şifrede `&`, `+` varsa connection string’de şifreyi tek tırnak içine al: `Password='...'`.
+
 ---
 
 ## Hâlâ 400 alıyorsan
