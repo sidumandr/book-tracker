@@ -71,11 +71,13 @@ builder.Services.AddSwaggerGen();
 //-cors
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowNextjs",
-        policy => policy.WithOrigins("https://book-tracker-ui.vercel.app") 
-                        .AllowAnyMethod()
-                        .AllowAnyHeader()
-                        .AllowCredentials());
+    options.AddPolicy("ProductionPolicy", policy =>
+    {
+        policy.WithOrigins("https://book-tracker-ui.vercel.app") 
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials(); 
+    });
 });
 
 var app = builder.Build();
@@ -94,7 +96,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseRouting(); 
 
-app.UseCors("AllowNextjs");
+app.UseCors("ProductionPolicy");
 
 app.UseAuthentication();
 app.UseAuthorization();
