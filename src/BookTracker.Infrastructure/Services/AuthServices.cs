@@ -24,10 +24,8 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponseDto> RegisterAsync(RegisterDto dto)
     {
-        // Önce JWT ayarlarının hazır olduğundan emin ol (kayıttan sonra hata vermemek için)
         EnsureJwtConfigValid();
 
-        // Email kontrolü
         if (await _context.Users.AnyAsync(u => u.Email == dto.Email))
             throw new InvalidOperationException("Bu email zaten kullanılıyor.");
 
@@ -35,13 +33,12 @@ public class AuthService : IAuthService
         {
             Username = dto.Username,
             Email = dto.Email,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password) // Şifreyi hashle
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password) 
         };
 
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
-        // Id'nin DB'den gelmesini garanti et (bazı ortamlarda entity güncellenmeyebilir)
         await _context.Entry(user).ReloadAsync();
 
         var token = GenerateJwtToken(user.Id, user.Email);
@@ -60,23 +57,22 @@ public class AuthService : IAuthService
         return new AuthResponseDto(token, user.Email, user.Username);
     }
 
+    private const string DefaultIssuer = "BookTrackerAPI";
+    private const string DefaultAudience = "BookTrackerApp";
+
     private void EnsureJwtConfigValid()
     {
         var key = _config["Jwt:Key"] ?? _config["Jwt:Secret"];
         if (string.IsNullOrWhiteSpace(key))
             throw new InvalidOperationException("Jwt:Key veya Jwt:Secret yapılandırmada tanımlı değil.");
-        if (string.IsNullOrWhiteSpace(_config["Jwt:Issuer"]))
-            throw new InvalidOperationException("Jwt:Issuer yapılandırmada tanımlı değil.");
-        if (string.IsNullOrWhiteSpace(_config["Jwt:Audience"]))
-            throw new InvalidOperationException("Jwt:Audience yapılandırmada tanımlı değil.");
     }
 
     public string GenerateJwtToken(int userId, string email)
     {
         var jwtKey = _config["Jwt:Key"] ?? _config["Jwt:Secret"]!;
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
-        var issuer = _config["Jwt:Issuer"] ?? "";
-        var audience = _config["Jwt:Audience"] ?? "";
+        var issuer = !string.IsNullOrWhiteSpace(_config["Jwt:Issuer"]) ? _config["Jwt:Issuer"]!.Trim() : DefaultIssuer;
+        var audience = !string.IsNullOrWhiteSpace(_config["Jwt:Audience"]) ? _config["Jwt:Audience"]!.Trim() : DefaultAudience;
 
         var claims = new[]
         {

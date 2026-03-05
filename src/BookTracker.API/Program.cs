@@ -31,8 +31,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
+        ValidIssuer = string.IsNullOrWhiteSpace(builder.Configuration["Jwt:Issuer"]) ? "BookTrackerAPI" : builder.Configuration["Jwt:Issuer"],
+        ValidAudience = string.IsNullOrWhiteSpace(builder.Configuration["Jwt:Audience"]) ? "BookTrackerApp" : builder.Configuration["Jwt:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)) 
        };
     });
