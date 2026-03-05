@@ -20,7 +20,8 @@ builder.Services.AddScoped<IUserBookRepository, UserBookRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 // 3. JWT Authentication 
-var jwtSecret = builder.Configuration["Jwt:Key"] ?? "LokaldeCalisirkenGeciciSifre123!";
+var jwtSecret = builder.Configuration["Jwt:Key"] 
+    ?? throw new InvalidOperationException("Jwt:Key is not configured.");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opt =>
     {
