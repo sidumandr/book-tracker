@@ -37,16 +37,29 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
        };
     });
 
-// 4. CORS 
+// 4. CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("ProductionPolicy", policy =>
     {
-        policy.WithOrigins("https://book-tracker-ui.vercel.app",
-                            "https://book-tracker-71834s3nu-sidumandrs-projects.vercel.app") // Vercel domain
+        policy.SetIsOriginAllowed(origin =>
+            {
+                if (string.IsNullOrEmpty(origin)) return false;
+                try
+                {
+                    var host = new Uri(origin).Host;
+                    // Vercel project deployments
+                    if (host.EndsWith("sidumandrs-projects.vercel.app")) return true;
+                    // Production domain 
+                    if (host.EndsWith(".vercel.app")) return true;
+                    // Local development
+                    if (host is "localhost" or "127.0.0.1") return true;
+                    return false;
+                }
+                catch { return false; }
+            })
               .AllowAnyMethod()
               .AllowAnyHeader();
-              
     });
 });
 
