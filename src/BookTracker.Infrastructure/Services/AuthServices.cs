@@ -39,8 +39,6 @@ public class AuthService : IAuthService
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
-        await _context.Entry(user).ReloadAsync();
-
         var token = GenerateJwtToken(user.Id, user.Email);
         return new AuthResponseDto(token, user.Email, user.Username);
     }
