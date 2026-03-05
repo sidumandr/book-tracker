@@ -44,8 +44,8 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins("https://book-tracker-ui.vercel.app") // Vercel domain
               .AllowAnyMethod()
-              .AllowAnyHeader()
-              .AllowCredentials(); 
+              .AllowAnyHeader();
+              
     });
 });
 
