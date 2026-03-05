@@ -4,10 +4,9 @@ import { UserBook, ReadingStatusLabel } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Trash2, Pencil } from "lucide-react";
+import { Trash2, Pencil, BookOpen, Quote } from "lucide-react";
 import { useBookStore } from "@/store/bookStore";
 import UpdateProgressModal from "@/components/books/UpdateProgressModal";
-import { BookOpen } from "lucide-react";
 
 interface BookCardProps {
   userBook: UserBook;
@@ -111,6 +110,18 @@ export default function BookCard({ userBook }: BookCardProps) {
               <Trash2 className="w-3 h-3" />
             </Button>
           </div>
+
+          {/* notes */}
+          {userBook.notes && (
+            <div className="mt-2 p-2 rounded-md bg-muted/50 border-l-2 border-violet-400">
+              <div className="flex items-start gap-2">
+                <Quote className="w-3 h-3 text-violet-500 mt-1 shrink-0" />
+                <p className="text-xs italic text-muted-foreground line-clamp-2">
+                  {userBook.notes}
+                </p>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface Props {
   userBook: UserBook;
@@ -39,13 +40,21 @@ export default function UpdateProgressModal({
   const [notes, setNotes] = useState(userBook.notes ?? "");
   const [isLoading, setIsLoading] = useState(false);
 
+  const [shouldFinish, setShouldFinish] = useState(false);
+
+  const isAtTheEnd =
+    currentPage >= userBook.pageCount - 1 && status === "Reading";
+
   const handleSave = async () => {
     setIsLoading(true);
     try {
+      const finalStatus = shouldFinish ? "Finished" : status;
+
       await updateProgress(userBook.bookId, {
-        status,
-        currentPage: status === "Reading" ? currentPage : undefined,
-        rating: status === "Finished" ? rating : undefined,
+        status: finalStatus,
+        currentPage:
+          finalStatus === "Reading" ? currentPage : userBook.pageCount,
+        rating: finalStatus === "Finished" ? rating : undefined,
         notes: notes.trim() !== "" ? notes : undefined,
       });
       await fetchUserBooks();
@@ -98,6 +107,23 @@ export default function UpdateProgressModal({
                 value={currentPage === 0 ? "" : currentPage}
                 onChange={(e) => setCurrentPage(Number(e.target.value) || 0)}
               />
+
+              {isAtTheEnd && (
+                <div className="flex items-center space-x-2 p-3 bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800 rounded-lg animate-in fade-in slide-in-from-top-1">
+                  <Checkbox
+                    id="finish-check"
+                    checked={shouldFinish}
+                    onCheckedChange={(checked) => setShouldFinish(!!checked)}
+                  />
+                  <label
+                    htmlFor="finish-check"
+                    className="text-sm font-medium leading-none cursor-pointer text-violet-900 dark:text-violet-300"
+                  >
+                    Kitap bitiyor, rafa kaldıralım mı?
+                  </label>
+                </div>
+              )}
+
               {/* progress bar */}
               <div className="w-full bg-secondary rounded-full h-2">
                 <div
@@ -114,8 +140,8 @@ export default function UpdateProgressModal({
           )}
 
           {/* rate */}
-          {status === "Finished" && (
-            <div className="space-y-2">
+          {(status === "Finished" || shouldFinish) && (
+            <div className="space-y-2 animate-in fade-in duration-300">
               <Label>Puan Ver</Label>
               <div className="flex gap-2">
                 {[1, 2, 3, 4, 5].map((star) => (

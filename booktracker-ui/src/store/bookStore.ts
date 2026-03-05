@@ -37,7 +37,7 @@ export const useBookStore = create<BookState>((set) => ({
   fetchUserBooks: async () => {
     set({ isLoading: true, error: null });
     try {
-      const { data } = await api.get<UserBook[]>("/userbooks");
+      const { data } = await api.get<UserBook[]>("/UserBook");
       set({ userBooks: data });
     } finally {
       set({ isLoading: false });
@@ -51,17 +51,17 @@ export const useBookStore = create<BookState>((set) => ({
   },
 
   addToLibrary: async (bookId, status) => {
-    await api.post("/userbooks", { bookId, status });
+    await api.post("/UserBook", { bookId, status });
   },
 
   updateProgress: async (bookId, data) => {
-    await api.put(`/userbooks/${bookId}`, data);
-    const { data: updated } = await api.get<UserBook[]>("/userbooks");
+    await api.put(`/UserBook/${bookId}`, data);
+    const { data: updated } = await api.get<UserBook[]>("/UserBook");
     set({ userBooks: updated });
   },
 
   removeFromLibrary: async (bookId) => {
-    await api.delete(`/userbooks/${bookId}`);
+    await api.delete(`/UserBook/${bookId}`);
     set((state) => ({
       userBooks: state.userBooks.filter((ub) => ub.bookId !== bookId),
     }));
