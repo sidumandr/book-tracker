@@ -47,7 +47,7 @@ builder.Services.AddSwaggerGen(opt =>
 });
 
 //-jwt authentication
-var jwtSecret = builder.Configuration["Jwt:Secret"]!;
+var jwtSecret = builder.Configuration["Jwt:Key"] ?? "LokaldeCalisirkenGeciciSifre123!";
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opt =>
     {
@@ -72,9 +72,10 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowNextjs",
-        policy => policy.WithOrigins("http://localhost:3000") 
+        policy => policy.WithOrigins("https://book-tracker-ui.vercel.app") 
                         .AllowAnyMethod()
-                        .AllowAnyHeader());
+                        .AllowAnyHeader()
+                        .AllowCredentials());
 });
 
 var app = builder.Build();
