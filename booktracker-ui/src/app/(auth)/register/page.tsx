@@ -73,7 +73,7 @@ export default function RegisterPage() {
                   name="username"
                   value={form.username}
                   onChange={handleChange}
-                  placeholder="safa"
+                  placeholder="Kullanıcı Adı"
                   required
                 />
               </div>
@@ -85,7 +85,7 @@ export default function RegisterPage() {
                   type="email"
                   value={form.email}
                   onChange={handleChange}
-                  placeholder="safa@example.com"
+                  placeholder="Email@example.com"
                   required
                 />
               </div>
@@ -97,7 +97,7 @@ export default function RegisterPage() {
                   type="password"
                   value={form.password}
                   onChange={handleChange}
-                  placeholder="••••••••"
+                  placeholder="Şifre"
                   required
                 />
               </div>

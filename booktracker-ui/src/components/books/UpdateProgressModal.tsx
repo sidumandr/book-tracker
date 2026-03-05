@@ -12,6 +12,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  BookMarked,
+  BookOpen,
+  BookCheck,
+  BookX,
+  Star,
+  LucideIcon,
+} from "lucide-react";
 
 interface Props {
   userBook: UserBook;
@@ -19,11 +27,19 @@ interface Props {
   onClose: () => void;
 }
 
-const statusOptions: { value: ReadingStatus; label: string }[] = [
-  { value: "WantToRead", label: "📚 Okumak İstiyorum" },
-  { value: "Reading", label: "📖 Okuyorum" },
-  { value: "Finished", label: "✅ Bitirdim" },
-  { value: "Dropped", label: "❌ Bıraktım" },
+const statusOptions: {
+  value: ReadingStatus;
+  label: string;
+  icon: LucideIcon;
+}[] = [
+  {
+    value: "WantToRead" as ReadingStatus,
+    label: "Okumak İstiyorum",
+    icon: BookMarked,
+  },
+  { value: "Reading" as ReadingStatus, label: "Okuyorum", icon: BookOpen },
+  { value: "Finished" as ReadingStatus, label: "Bitirdim", icon: BookCheck },
+  { value: "Dropped" as ReadingStatus, label: "Bıraktım", icon: BookX },
 ];
 
 export default function UpdateProgressModal({
@@ -77,19 +93,27 @@ export default function UpdateProgressModal({
           <div className="space-y-2">
             <Label>Okuma Durumu</Label>
             <div className="grid grid-cols-2 gap-2">
-              {statusOptions.map((opt) => (
-                <button
-                  key={opt.value}
-                  onClick={() => setStatus(opt.value)}
-                  className={`p-2 rounded-lg border text-sm transition-colors ${
-                    status === opt.value
-                      ? "border-violet-500 bg-violet-50 text-violet-700 dark:bg-violet-950 dark:text-violet-300"
-                      : "border-border hover:bg-muted"
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
+              {statusOptions.map((opt) => {
+                const Icon = opt.icon;
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => {
+                      setStatus(opt.value);
+                      if (opt.value !== "Reading") setShouldFinish(false);
+                    }}
+                    className={`p-2 flex items-center justify-center gap-2 rounded-lg border text-sm font-medium transition-colors ${
+                      status === opt.value
+                        ? "border-violet-500 bg-violet-50 text-violet-700 dark:bg-violet-950 dark:text-violet-300"
+                        : "border-border hover:bg-muted"
+                    }`}
+                  >
+                    <Icon className="w-4 h-4 shrink-0" />
+                    <span className="leading-none mt-px">{opt.label}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -147,10 +171,17 @@ export default function UpdateProgressModal({
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
                     key={star}
+                    type="button"
                     onClick={() => setRating(star)}
-                    className="text-2xl transition-transform hover:scale-110"
+                    className="transition-transform hover:scale-110 focus:outline-none"
                   >
-                    {star <= rating ? "⭐" : "☆"}
+                    <Star
+                      className={`w-7 h-7 transition-colors duration-200 ${
+                        star <= rating
+                          ? "text-amber-300 fill-amber-200"
+                          : "text-muted-foreground/40 hover:text-amber-200"
+                      }`}
+                    />
                   </button>
                 ))}
               </div>

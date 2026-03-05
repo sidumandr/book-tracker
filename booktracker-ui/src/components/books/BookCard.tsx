@@ -4,7 +4,7 @@ import { UserBook, ReadingStatusLabel } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Trash2, Pencil, BookOpen, Quote } from "lucide-react";
+import { Trash2, Pencil, BookOpen, Quote, Star } from "lucide-react";
 import { useBookStore } from "@/store/bookStore";
 import UpdateProgressModal from "@/components/books/UpdateProgressModal";
 
@@ -86,11 +86,24 @@ export default function BookCard({ userBook }: BookCardProps) {
 
           {/* rating */}
           {userBook.status === "Finished" && userBook.rating && (
-            <p className="text-sm">
-              {"⭐".repeat(userBook.rating)} ({userBook.rating}/5)
-            </p>
+            <div className="flex items-center gap-1 text-sm">
+              <div className="flex">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    className={`w-4 h-4 ${
+                      star <= userBook.rating!
+                        ? "text-amber-300 fill-amber-200"
+                        : "text-muted-foreground opacity-30"
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="text-muted-foreground ml-1">
+                ({userBook.rating}/5)
+              </span>
+            </div>
           )}
-
           {/* actions */}
           <div className="flex items-center justify-between pt-1">
             <Button
