@@ -24,6 +24,9 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponseDto> RegisterAsync(RegisterDto dto)
     {
+        // Önce JWT ayarlarının hazır olduğundan emin ol (kayıttan sonra hata vermemek için)
+        EnsureJwtConfigValid();
+
         // Email kontrolü
         if (await _context.Users.AnyAsync(u => u.Email == dto.Email))
             throw new InvalidOperationException("Bu email zaten kullanılıyor.");
@@ -37,6 +40,9 @@ public class AuthService : IAuthService
 
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
+
+        // Id'nin DB'den gelmesini garanti et (bazı ortamlarda entity güncellenmeyebilir)
+        await _context.Entry(user).ReloadAsync();
 
         var token = GenerateJwtToken(user.Id, user.Email);
         return new AuthResponseDto(token, user.Email, user.Username);
@@ -54,12 +60,23 @@ public class AuthService : IAuthService
         return new AuthResponseDto(token, user.Email, user.Username);
     }
 
+    private void EnsureJwtConfigValid()
+    {
+        var key = _config["Jwt:Key"] ?? _config["Jwt:Secret"];
+        if (string.IsNullOrWhiteSpace(key))
+            throw new InvalidOperationException("Jwt:Key veya Jwt:Secret yapılandırmada tanımlı değil.");
+        if (string.IsNullOrWhiteSpace(_config["Jwt:Issuer"]))
+            throw new InvalidOperationException("Jwt:Issuer yapılandırmada tanımlı değil.");
+        if (string.IsNullOrWhiteSpace(_config["Jwt:Audience"]))
+            throw new InvalidOperationException("Jwt:Audience yapılandırmada tanımlı değil.");
+    }
+
     public string GenerateJwtToken(int userId, string email)
     {
-        // JWT: Header.Payload.Signature formatında güvenli token
-        var jwtKey = _config["Jwt:Key"] ?? _config["Jwt:Secret"]
-            ?? throw new InvalidOperationException("Jwt:Key veya Jwt:Secret yapılandırmada tanımlı değil.");
+        var jwtKey = _config["Jwt:Key"] ?? _config["Jwt:Secret"]!;
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+        var issuer = _config["Jwt:Issuer"] ?? "";
+        var audience = _config["Jwt:Audience"] ?? "";
 
         var claims = new[]
         {
@@ -68,8 +85,8 @@ public class AuthService : IAuthService
         };
 
         var token = new JwtSecurityToken(
-            issuer: _config["Jwt:Issuer"],
-            audience: _config["Jwt:Audience"],
+            issuer: issuer,
+            audience: audience,
             claims: claims,
             expires: DateTime.UtcNow.AddDays(7),
             signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
