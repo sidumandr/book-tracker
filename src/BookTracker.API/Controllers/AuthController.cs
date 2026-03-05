@@ -25,15 +25,18 @@ public class AuthController : ControllerBase
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(new { message = ex.Message });
+            
+            if (ex.Message == "Bu email zaten kullanılıyor.")
+                return BadRequest(new { message = ex.Message });
+            return StatusCode(500, new { message = ex.Message });
         }
         catch (InvalidCastException ex)
         {
             return BadRequest(new { message = ex.Message });
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return StatusCode(500, new { message = "Kayıt sırasında bir hata oluştu." });
+            return StatusCode(500, new { message = ex.Message });
         }
     }
 

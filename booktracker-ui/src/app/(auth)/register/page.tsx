@@ -43,8 +43,12 @@ export default function RegisterPage() {
       const { data } = await api.post<AuthResponse>("/auth/register", form);
       login(data.token, { email: data.email, username: data.username });
       router.push("/dashboard");
-    } catch {
-      setError("Kayıt başarısız. Email zaten kullanılıyor olabilir.");
+    } catch (err: unknown) {
+      const data = err && typeof err === "object" && "response" in err
+        ? (err as { response?: { data?: { message?: string; Message?: string } } }).response?.data
+        : undefined;
+      const msg = data?.message ?? data?.Message;
+      setError(msg ?? "Kayıt başarısız. Email zaten kullanılıyor olabilir.");
     } finally {
       setIsLoading(false);
     }
