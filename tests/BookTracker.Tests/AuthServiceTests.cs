@@ -34,7 +34,7 @@ public class AuthServiceTests
     [Fact]
     public async Task Login_WrongPassword_ShouldThrowUnauthorizedAccessException()
     {
-        // Arrange
+        // setup
         var user = new User { 
             Username = "safa", 
             Email = "safa@test.com", 
@@ -45,10 +45,10 @@ public class AuthServiceTests
 
         var loginDto = new LoginDto("safa@test.com", "wrong_password");
 
-        // Act
+        // run
         Func<Task> act = async () => await _authService.LoginAsync(loginDto);
 
-        // Assert
+        // check
         await act.Should().ThrowAsync<UnauthorizedAccessException>()
             .WithMessage("The email or password is incorrect.");
     }
@@ -56,13 +56,13 @@ public class AuthServiceTests
     [Fact]
     public async Task Register_NewUser_ShouldSaveSuccessfully()
     {
-        // Arrange
+        // setup
         var registerDto = new RegisterDto("newuser", "new@test.com", "Password123!");
 
-        // Act
+        // run
         var response = await _authService.RegisterAsync(registerDto);
 
-        // Assert
+        // check
         response.Should().NotBeNull();
         response.Email.Should().Be("new@test.com");
         

@@ -53,7 +53,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/50">
       <div className="w-full max-w-md px-4">
-        {/* Logo */}
+        {/* logo */}
         <div className="flex items-center justify-center gap-2 mb-8">
           <BookOpen className="w-8 h-8 text-violet-500" />
           <span className="text-2xl font-bold">BookTracker</span>

@@ -39,7 +39,15 @@ public class AuthService : IAuthService
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
-        var token = GenerateJwtToken(user.Id, user.Email);
+        // get id from db if not set after insert
+        var userId = user.Id;
+        if (userId == 0)
+        {
+            var saved = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Email == user.Email);
+            if (saved != null) userId = saved.Id;
+        }
+
+        var token = GenerateJwtToken(userId, user.Email);
         return new AuthResponseDto(token, user.Email, user.Username);
     }
 

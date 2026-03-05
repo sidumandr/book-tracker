@@ -102,7 +102,7 @@ export default function BooksPage() {
         </Button>
       </form>
 
-      {/* reusults */}
+      {/* results */}
       {results.length === 0 && !isSearching && (
         <div className="text-center py-16">
           <p className="text-4xl mb-4">🔍</p>

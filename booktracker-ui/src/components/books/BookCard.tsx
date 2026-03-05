@@ -31,7 +31,7 @@ export default function BookCard({ userBook }: BookCardProps) {
       <Card className="hover:shadow-md transition-shadow cursor-pointer">
         <CardHeader className="pb-2">
           <div className="flex gap-3">
-            {/* cover img */}
+            {/* cover */}
             {userBook.coverImageUrl ? (
               <img
                 src={userBook.coverImageUrl}
@@ -44,7 +44,7 @@ export default function BookCard({ userBook }: BookCardProps) {
               </div>
             )}
 
-            {/* title and author */}
+            {/* title, author */}
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-2">
                 <CardTitle className="text-base leading-tight">
@@ -66,7 +66,7 @@ export default function BookCard({ userBook }: BookCardProps) {
         </CardHeader>
 
         <CardContent className="space-y-3">
-          {/* progress bar */}
+          {/* progress */}
           {userBook.status === "Reading" && (
             <div className="space-y-1">
               <div className="flex justify-between text-xs text-muted-foreground">

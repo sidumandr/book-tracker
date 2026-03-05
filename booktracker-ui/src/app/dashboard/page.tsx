@@ -87,7 +87,7 @@ export default function DashboardPage() {
         </Button>
       </div>
 
-      {/* empty state */}
+      {/* empty */}
       {userBooks.length === 0 && (
         <div className="flex flex-col items-center justify-center py-20 px-4 mt-8 border-2 border-dashed border-border rounded-xl bg-muted/10">
           <div className="w-16 h-16 bg-muted flex items-center justify-center rounded-full mb-4">
@@ -105,7 +105,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* book groups*/}
+      {/* groups */}
       {statusGroups.map(({ label, status, icon: Icon, color }) => {
         const filtered = userBooks.filter((ub) => ub.status === status);
         if (filtered.length === 0) return null;
@@ -120,7 +120,7 @@ export default function DashboardPage() {
               </span>
             </div>
 
-            {/* card grid */}
+            {/* cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filtered.map((userBook) => (
                 <BookCard key={userBook.id} userBook={userBook} />

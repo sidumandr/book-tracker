@@ -38,7 +38,9 @@ export const useBookStore = create<BookState>((set) => ({
     set({ isLoading: true, error: null });
     try {
       const { data } = await api.get<UserBook[]>("/UserBook");
-      set({ userBooks: data });
+      set({ userBooks: data ?? [] });
+    } catch {
+      set({ userBooks: [], error: "Kütüphane yüklenemedi. Tekrar giriş yapmayı deneyin." });
     } finally {
       set({ isLoading: false });
     }

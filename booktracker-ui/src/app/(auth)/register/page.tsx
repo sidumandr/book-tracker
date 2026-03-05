@@ -40,8 +40,16 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      const { data } = await api.post<AuthResponse>("/auth/register", form);
-      login(data.token, { email: data.email, username: data.username });
+      const res = await api.post<AuthResponse>("/auth/register", form);
+      const data = res.data;
+      const token = data?.token ?? (data as { Token?: string })?.Token;
+      const email = data?.email ?? (data as { Email?: string })?.Email;
+      const username = data?.username ?? (data as { Username?: string })?.Username;
+      if (!token || !email || !username) {
+        setError("Sunucu yanıtı geçersiz. Giriş yapmayı deneyin.");
+        return;
+      }
+      login(token, { email, username });
       router.push("/dashboard");
     } catch (err: unknown) {
       const data = err && typeof err === "object" && "response" in err
@@ -57,7 +65,7 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/50">
       <div className="w-full max-w-md px-4">
-        {/* Logo */}
+        {/* logo */}
         <div className="flex items-center justify-center gap-2 mb-8">
           <BookOpen className="w-8 h-8 text-violet-500" />
           <span className="text-2xl font-bold">BookTracker</span>

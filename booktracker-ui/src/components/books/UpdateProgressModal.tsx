@@ -89,7 +89,7 @@ export default function UpdateProgressModal({
         </DialogHeader>
 
         <div className="space-y-4 pt-2">
-          {/* status selection */}
+          {/* status */}
           <div className="space-y-2">
             <Label>Okuma Durumu</Label>
             <div className="grid grid-cols-2 gap-2">
@@ -148,7 +148,7 @@ export default function UpdateProgressModal({
                 </div>
               )}
 
-              {/* progress bar */}
+              {/* progress */}
               <div className="w-full bg-secondary rounded-full h-2">
                 <div
                   className="bg-violet-500 h-2 rounded-full transition-all"
@@ -163,7 +163,7 @@ export default function UpdateProgressModal({
             </div>
           )}
 
-          {/* rate */}
+          {/* rating */}
           {(status === "Finished" || shouldFinish) && (
             <div className="space-y-2 animate-in fade-in duration-300">
               <Label>Puan Ver</Label>
@@ -199,7 +199,7 @@ export default function UpdateProgressModal({
             />
           </div>
 
-          {/* buttons */}
+          {/* actions */}
           <div className="flex gap-2 pt-2">
             <Button variant="outline" className="flex-1" onClick={onClose}>
               İptal

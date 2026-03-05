@@ -5,23 +5,24 @@ using BookTracker.Infrastructure.Repositories;
 using BookTracker.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Database Connection
+// db
 builder.Services.AddDbContext<AppDbContext>(opt => 
     opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// 2. DI Registrations
+// di
 builder.Services.AddScoped<IBookRepository, BookRepository>();
 builder.Services.AddScoped<IUserBookRepository, UserBookRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
-// 3. JWT Authentication 
-var jwtSecret = builder.Configuration["Jwt:Key"] 
-    ?? throw new InvalidOperationException("Jwt:Key is not configured.");
+// jwt (use Jwt__Key or Jwt__Secret on Render)
+var jwtSecret = builder.Configuration["Jwt:Key"] ?? builder.Configuration["Jwt:Secret"]
+    ?? throw new InvalidOperationException("Jwt:Key veya Jwt:Secret yapılandırmada tanımlı değil (Render env: Jwt__Key / Jwt__Secret).");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opt =>
     {
@@ -37,7 +38,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
        };
     });
 
-// 4. CORS
+// cors
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("ProductionPolicy", policy =>
@@ -48,11 +49,10 @@ builder.Services.AddCors(options =>
                 try
                 {
                     var host = new Uri(origin).Host;
-                    // Vercel project deployments
+                    // vercel preview + prod
                     if (host.EndsWith("sidumandrs-projects.vercel.app")) return true;
-                    // Production domain 
                     if (host.EndsWith(".vercel.app")) return true;
-                    // Local development
+                    // local
                     if (host is "localhost" or "127.0.0.1") return true;
                     return false;
                 }
@@ -68,7 +68,7 @@ builder.Services.AddControllers()
     .AddJsonOptions(opt => opt.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase);
 builder.Services.AddEndpointsApiExplorer();
 
-// 5. Swagger 
+// swagger
 builder.Services.AddSwaggerGen(opt =>
 {
     opt.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
@@ -94,6 +94,21 @@ builder.Services.AddSwaggerGen(opt =>
 
 var app = builder.Build();
 
+// dev only: check db connection on startup
+if (app.Environment.IsDevelopment())
+{
+    try
+    {
+        using var scope = app.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        if (!await db.Database.CanConnectAsync())
+            Console.WriteLine("[WARN] Could not connect to db. Check ConnectionStrings and Supabase.");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("[WARN] Db connection: " + ex.Message);
+    }
+}
 
 app.UseSwagger();
 app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "BookTracker API V1"); });

@@ -36,7 +36,11 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = ex.Message });
+            var raw = ex.Message + (ex.InnerException != null ? " " + ex.InnerException.Message : "");
+            var msg = raw.Contains("transient", StringComparison.OrdinalIgnoreCase)
+                ? "Veritabanı bağlantısı kurulamadı. Supabase açık mı, şifre doğru mu kontrol edin."
+                : ex.Message;
+            return StatusCode(500, new { message = msg });
         }
     }
 
@@ -50,7 +54,15 @@ public class AuthController : ControllerBase
         }
         catch (UnauthorizedAccessException ex)
         {
-            return Unauthorized(new {message = ex.Message});
+            return Unauthorized(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            var raw = ex.Message + (ex.InnerException != null ? " " + ex.InnerException.Message : "");
+            var msg = raw.Contains("transient", StringComparison.OrdinalIgnoreCase)
+                ? "Veritabanı bağlantısı kurulamadı. Lütfen tekrar deneyin."
+                : ex.Message;
+            return StatusCode(500, new { message = msg });
         }
     }
 }

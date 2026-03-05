@@ -2,7 +2,7 @@ namespace BookTracker.Domain.Entities;
 
 public class Book
 {
-    public int Id {get; set;} //pk
+    public int Id {get; set;}
     public string Title {get; set;} = string.Empty;
     public string Author {get; set;} = string.Empty;
     public string? ISBN {get; set;}
@@ -10,7 +10,7 @@ public class Book
     public string? CoverImageUrl {get; set;}
     public DateTime CreatedAt {get; set;} = DateTime.UtcNow;
 
-    //nav prop
+    // nav
     public ICollection<UserBook> UserBooks {get; set;} = new List<UserBook>();
 
 }

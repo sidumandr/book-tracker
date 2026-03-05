@@ -3,19 +3,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookTracker.Infrastructure.Data;
 
-// DbContext
+// ef context
 public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-    // DbSet
+    // sets
     public DbSet<User> Users => Set<User>();
     public DbSet<Book> Books => Set<Book>();
     public DbSet<UserBook> UserBooks => Set<UserBook>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // table config with Fluent API 
+        // fluent config
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasIndex(u => u.Email).IsUnique();      

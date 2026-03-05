@@ -19,7 +19,7 @@ public class UserBook
 }
 
 
-//enum
+// status enum
 public enum ReadingStatus
 {
     WantToRead = 0,

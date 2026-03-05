@@ -12,14 +12,13 @@ Render Dashboard → Servisini seç → **Environment** sekmesi → aşağıdaki
 
 | Key | Açıklama | Örnek |
 |-----|----------|--------|
-| `ConnectionStrings__DefaultConnection` | Supabase (PostgreSQL) connection string | `Host=...;Database=...;Username=...;Password=...` (Supabase → Project Settings → Database) |
-| `Jwt__Key` | JWT imza için gizli anahtar (uzun, rastgele string) | En az 32 karakter güçlü bir anahtar |
-| `Jwt__Issuer` | (İsteğe bağlı) Token issuer | `BookTrackerAPI` (boş bırakırsan kodda varsayılan kullanılır) |
-| `Jwt__Audience` | (İsteğe bağlı) Token audience | `BookTrackerApp` (boş bırakırsan kodda varsayılan kullanılır) |
+| `ConnectionStrings__DefaultConnection` | Supabase PostgreSQL connection string | Supabase → Project Settings → Database. Şifrede `&` veya `+` varsa **şifreyi tek tırnak içine al**: `Password='sifre'` |
+| `Jwt__Key` veya `Jwt__Secret` | JWT imza anahtarı (en az ~32 karakter) | Rastgele güçlü string; ikisinden biri yeterli |
+| `Jwt__Issuer` | (İsteğe bağlı) Token issuer | Örn. `BookTracker`; boşsa varsayılan kullanılır |
+| `Jwt__Audience` | (İsteğe bağlı) Token audience | Örn. `BookTrackerUsers`; boşsa varsayılan kullanılır |
 
-**.NET’te iki alt çizgi `__` = config’te iki nokta `:`**
-
-- `Jwt__Key` → `Configuration["Jwt:Key"]`
+**.NET’te `__` = config’te `:`**  
+- `Jwt__Key` → `Configuration["Jwt:Key"]`  
 - `ConnectionStrings__DefaultConnection` → `GetConnectionString("DefaultConnection")`
 
 ### 2. Deploy’un güncel olduğundan emin ol
@@ -77,7 +76,15 @@ CORS backend’de (Render’daki API) ayarlı. Vercel’de ekstra CORS ayarı ya
 
 ---
 
-## Hâlâ 400 alıyorsan
+## Auth (Register / Login) özeti
+
+- **Register:** Başarılı → 200 + `{ token, email, username }`. Email kullanılıyor → 400 + `message`. Veritabanı/geçici hata → 500 + `message`.
+- **Login:** Başarılı → 200 + `{ token, email, username }`. Hatalı giriş → 401 + `message`. Veritabanı hatası → 500 + `message`.
+- Tüm hata yanıtları `{ message: "..." }` formatında; frontend bu alanı gösterebilir.
+
+---
+
+## Hâlâ 400/500 alıyorsan
 
 1. **Ekrandaki hata metnini** oku: Artık API’nin döndüğü `message` gösteriliyor (örn. “Bu email zaten kullanılıyor.” veya “Jwt:Key …”).
 2. **Render logs:** Render → Servis → **Logs**. Kayıt isteği sırasında exception veya stack trace var mı bak.
