@@ -84,10 +84,8 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "BookTracker API V1"); });
 
-
-app.UseRouting(); 
-
-app.UseCors("ProductionPolicy"); 
+app.UseCors("ProductionPolicy");
+app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();

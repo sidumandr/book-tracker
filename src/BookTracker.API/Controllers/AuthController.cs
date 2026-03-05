@@ -23,9 +23,17 @@ public class AuthController : ControllerBase
             var result = await _authService.RegisterAsync(dto);
             return Ok(result);
         }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
         catch (InvalidCastException ex)
         {
-            return BadRequest(new {message = ex.Message});
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, new { message = "Kayıt sırasında bir hata oluştu." });
         }
     }
 

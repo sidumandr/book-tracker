@@ -57,8 +57,9 @@ public class AuthService : IAuthService
     public string GenerateJwtToken(int userId, string email)
     {
         // JWT: Header.Payload.Signature formatında güvenli token
-        var key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(_config["Jwt:Secret"]!));
+        var jwtKey = _config["Jwt:Key"] ?? _config["Jwt:Secret"]
+            ?? throw new InvalidOperationException("Jwt:Key veya Jwt:Secret yapılandırmada tanımlı değil.");
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
 
         var claims = new[]
         {
