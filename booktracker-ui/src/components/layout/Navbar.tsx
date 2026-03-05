@@ -14,6 +14,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import Logo from "@/app/assets/logo.png";
+import Image from "next/image";
 
 export default function Navbar() {
   const { user, logout, isAuthenticated } = useAuthStore();
@@ -40,8 +42,13 @@ export default function Navbar() {
           href="/dashboard"
           className="flex items-center gap-2 font-bold text-xl"
         >
-          <BookOpen className="w-6 h-6 text-violet-500" />
-          BookTracker
+          <Image
+            src={Logo}
+            alt="Book Tracker Logo"
+            width={100}
+            height={100}
+            priority
+          />
         </Link>
 
         {/* links */}
