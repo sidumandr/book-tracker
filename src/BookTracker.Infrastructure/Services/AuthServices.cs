@@ -26,34 +26,46 @@ public class AuthService : IAuthService
     {
         EnsureJwtConfigValid();
 
-        if (await _context.Users.AnyAsync(u => u.Email == dto.Email))
+        var emailNorm = dto.Email.Trim().ToLowerInvariant();
+        if (await _context.Users.AnyAsync(u => u.Email.Trim().ToLowerInvariant() == emailNorm))
             throw new InvalidOperationException("Bu email zaten kullanılıyor.");
+        if (await _context.Users.AnyAsync(u => u.Username == dto.Username.Trim()))
+            throw new InvalidOperationException("Bu kullanıcı adı zaten kullanılıyor.");
 
         var user = new User
         {
-            Username = dto.Username,
-            Email = dto.Email,
+            Username = dto.Username.Trim(),
+            Email = emailNorm,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password) 
         };
 
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
-        // get id from db if not set after insert
-        var userId = user.Id;
+        int userId = user.Id;
         if (userId == 0)
         {
             var saved = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Email == user.Email);
             if (saved != null) userId = saved.Id;
         }
 
-        var token = GenerateJwtToken(userId, user.Email);
+        string token;
+        try
+        {
+            token = GenerateJwtToken(userId, user.Email);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"JWT generation failed: {ex.Message}", ex);
+        }
+
         return new AuthResponseDto(token, user.Email, user.Username);
     }
 
     public async Task<AuthResponseDto> LoginAsync(LoginDto dto)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email)
+        var emailNorm = dto.Email.Trim().ToLowerInvariant();
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email.Trim().ToLowerInvariant() == emailNorm)
             ?? throw new UnauthorizedAccessException("Email veya şifre hatalı.");
 
         if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
@@ -75,7 +87,10 @@ public class AuthService : IAuthService
 
     public string GenerateJwtToken(int userId, string email)
     {
-        var jwtKey = _config["Jwt:Key"] ?? _config["Jwt:Secret"]!;
+        var raw = _config["Jwt:Key"] ?? _config["Jwt:Secret"] ?? "";
+        if (string.IsNullOrWhiteSpace(raw))
+            throw new InvalidOperationException("Jwt:Key or Jwt:Secret is missing.");
+        var jwtKey = raw.Trim().Replace(' ', '+');
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
         var issuer = !string.IsNullOrWhiteSpace(_config["Jwt:Issuer"]) ? _config["Jwt:Issuer"]!.Trim() : DefaultIssuer;
         var audience = !string.IsNullOrWhiteSpace(_config["Jwt:Audience"]) ? _config["Jwt:Audience"]!.Trim() : DefaultAudience;
