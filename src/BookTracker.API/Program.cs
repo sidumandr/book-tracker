@@ -48,18 +48,16 @@ builder.Services.AddCors(options =>
                 if (string.IsNullOrEmpty(origin)) return false;
                 try
                 {
-                    var host = new Uri(origin).Host;
-                    // vercel preview + prod
-                    if (host.EndsWith("sidumandrs-projects.vercel.app")) return true;
-                    if (host.EndsWith(".vercel.app")) return true;
-                    // local
+                    var host = new Uri(origin).Host.ToLowerInvariant();
+                    if (host.EndsWith("vercel.app")) return true;
                     if (host is "localhost" or "127.0.0.1") return true;
                     return false;
                 }
                 catch { return false; }
             })
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .SetPreflightMaxAge(TimeSpan.FromSeconds(86400));
     });
 });
 
@@ -118,6 +116,9 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// health check for connectivity (no auth)
+app.MapGet("/api/health", () => Results.Ok(new { status = "ok" })).AllowAnonymous();
 
 app.MapControllers();
 app.Run();

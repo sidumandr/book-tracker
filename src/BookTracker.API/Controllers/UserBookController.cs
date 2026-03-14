@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BookTracker.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/UserBook")]
 [Authorize]
 public class UserBookController : ControllerBase
 {
@@ -61,7 +61,7 @@ public class UserBookController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<UserBookDto>> AddToLibrary(AddToLibraryDto dto)
+    public async Task<ActionResult<UserBookDto>> AddToLibrary([FromBody] AddToLibraryDto dto)
     {
         var userId = GetUserId();
         if (userId is null)
@@ -83,7 +83,7 @@ public class UserBookController : ControllerBase
     }
 
     [HttpPut("{bookId}")]
-    public async Task<ActionResult<UserBookDto>> UpdateProgress(int bookId, UpdateProgressDto dto)
+    public async Task<ActionResult<UserBookDto>> UpdateProgress(int bookId, [FromBody] UpdateProgressDto dto)
     {
         var userId = GetUserId();
         if (userId is null)

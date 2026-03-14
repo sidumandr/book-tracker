@@ -76,6 +76,21 @@ CORS backend’de (Render’daki API) ayarlı. Vercel’de ekstra CORS ayarı ya
 
 ---
 
+## API routes (frontend ile birebir)
+
+Backend route’ları frontend’in kullandığı path’lerle aynı:
+
+| Frontend path   | Backend route      | Method |
+|-----------------|--------------------|--------|
+| `/auth/register`| `api/auth/register`| POST   |
+| `/auth/login`   | `api/auth/login`   | POST   |
+| `/books`        | `api/books`        | GET, POST |
+| `/UserBook`     | `api/UserBook`     | GET, POST, PUT, DELETE |
+
+Base URL sonunda `/api` olmalı (örn. `https://xxx.onrender.com/api`).
+
+---
+
 ## Auth (Register / Login) özeti
 
 - **Register:** Başarılı → 200 + `{ token, email, username }`. Email kullanılıyor → 400 + `message`. Veritabanı/geçici hata → 500 + `message`.

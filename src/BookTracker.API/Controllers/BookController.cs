@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace BookTracker.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
-[Authorize] 
+[Route("api/books")]
+[Authorize]
 public class BooksController : ControllerBase
 {
     private readonly IBookRepository _repo;
@@ -49,7 +49,7 @@ public class BooksController : ControllerBase
 
 
     [HttpPost]
-    public async Task<ActionResult<BookDto>> Create(CreateBookDto dto)
+    public async Task<ActionResult<BookDto>> Create([FromBody] CreateBookDto dto)
     {
         var book = new Book
         {
