@@ -52,11 +52,16 @@ export default function RegisterPage() {
       login(token, { email, username });
       router.push("/dashboard");
     } catch (err: unknown) {
-      const data = err && typeof err === "object" && "response" in err
-        ? (err as { response?: { data?: { message?: string; Message?: string } } }).response?.data
+      const ax = err && typeof err === "object"
+        ? (err as { response?: { data?: { message?: string; Message?: string }; status?: number }; code?: string })
         : undefined;
+      const data = ax?.response?.data;
       const msg = data?.message ?? data?.Message;
-      setError(msg ?? "Kayıt başarısız. Email zaten kullanılıyor olabilir.");
+      const noResponse = !ax?.response;
+      const isTimeout = ax?.code === "ECONNABORTED" || ax?.response?.status === 408;
+      if (msg) setError(msg);
+      else if (noResponse || isTimeout) setError("Bağlantı zaman aşımı veya sunucu yanıt vermiyor. API çalışıyor mu kontrol edin, tekrar deneyin.");
+      else setError("Kayıt başarısız. Lütfen tekrar deneyin.");
     } finally {
       setIsLoading(false);
     }
