@@ -26,15 +26,20 @@ public class AuthService : IAuthService
     {
         EnsureJwtConfigValid();
 
-        var emailNorm = dto.Email.Trim().ToLowerInvariant();
-        if (await _context.Users.AnyAsync(u => u.Email.Trim().ToLowerInvariant() == emailNorm))
+        // Normalizasyonu C# tarafında yapıyoruz (SQL'e temiz veri gönderiyoruz)
+        var emailNorm = dto.Email.Trim().ToLower();
+        var usernameTrim = dto.Username.Trim();
+
+        // PostgreSQL uyumlu ToLower() kullanımı
+        if (await _context.Users.AnyAsync(u => u.Email.ToLower() == emailNorm))
             throw new InvalidOperationException("Bu email zaten kullanılıyor.");
-        if (await _context.Users.AnyAsync(u => u.Username == dto.Username.Trim()))
+
+        if (await _context.Users.AnyAsync(u => u.Username == usernameTrim))
             throw new InvalidOperationException("Bu kullanıcı adı zaten kullanılıyor.");
 
         var user = new User
         {
-            Username = dto.Username.Trim(),
+            Username = usernameTrim,
             Email = emailNorm,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password) 
         };
@@ -42,30 +47,18 @@ public class AuthService : IAuthService
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
-        int userId = user.Id;
-        if (userId == 0)
-        {
-            var saved = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Email == user.Email);
-            if (saved != null) userId = saved.Id;
-        }
-
-        string token;
-        try
-        {
-            token = GenerateJwtToken(userId, user.Email);
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException($"JWT generation failed: {ex.Message}", ex);
-        }
+        // Kayıt sonrası JWT üretimi
+        var token = GenerateJwtToken(user.Id, user.Email);
 
         return new AuthResponseDto(token, user.Email, user.Username);
     }
 
     public async Task<AuthResponseDto> LoginAsync(LoginDto dto)
     {
-        var emailNorm = dto.Email.Trim().ToLowerInvariant();
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email.Trim().ToLowerInvariant() == emailNorm)
+        var emailNorm = dto.Email.Trim().ToLower();
+
+        // Sorgu içinde ToLowerInvariant yerine ToLower kullanarak çeviri hatasını çözdük
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == emailNorm)
             ?? throw new UnauthorizedAccessException("Email veya şifre hatalı.");
 
         if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
@@ -90,10 +83,13 @@ public class AuthService : IAuthService
         var raw = _config["Jwt:Key"] ?? _config["Jwt:Secret"] ?? "";
         if (string.IsNullOrWhiteSpace(raw))
             throw new InvalidOperationException("Jwt:Key or Jwt:Secret is missing.");
-        var jwtKey = raw.Trim().Replace(' ', '+');
+
+        // Key'in güvenli yüklenmesi
+        var jwtKey = raw.Trim();
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
-        var issuer = !string.IsNullOrWhiteSpace(_config["Jwt:Issuer"]) ? _config["Jwt:Issuer"]!.Trim() : DefaultIssuer;
-        var audience = !string.IsNullOrWhiteSpace(_config["Jwt:Audience"]) ? _config["Jwt:Audience"]!.Trim() : DefaultAudience;
+        
+        var issuer = _config["Jwt:Issuer"] ?? DefaultIssuer;
+        var audience = _config["Jwt:Audience"] ?? DefaultAudience;
 
         var claims = new[]
         {
