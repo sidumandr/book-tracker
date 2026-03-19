@@ -7,16 +7,17 @@ import Image from "next/image";
 import {
   ArrowRight,
   BookOpen,
+  Eye,
   Library,
   Search,
   ShieldCheck,
-  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuthStore } from "@/store/authStore";
 import Logo from "@/app/assets/logo.png";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const previewBooks = [
   {
@@ -63,15 +64,14 @@ export default function HomePage() {
               <Image
                 src={Logo}
                 alt="BookTracker Logo"
-                width={120}
-                height={120}
+                width={180}
+                height={180}
                 priority
-                className="h-12 w-auto"
+                className="h-16 md:h-20 w-auto"
               />
-              <Badge variant="outline" className="gap-1">
-                <Sparkles className="w-3 h-3" />
-                Yeni ziyaretçiler için ön izleme
-              </Badge>
+            </div>
+            <div className="self-center -translate-y-1 md:-translate-y-2">
+              <ThemeToggle />
             </div>
           </div>
 
@@ -86,7 +86,9 @@ export default function HomePage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-7 max-w-3xl">
             <div className="rounded-xl border bg-muted/40 px-4 py-3">
               <p className="text-xs text-muted-foreground">Takip durumu</p>
-              <p className="font-semibold">Reading / Finished / Dropped</p>
+              <p className="font-semibold">
+                Want to Read / Reading / Finished / Dropped
+              </p>
             </div>
             <div className="rounded-xl border bg-muted/40 px-4 py-3">
               <p className="text-xs text-muted-foreground">Arama</p>
@@ -239,7 +241,9 @@ export default function HomePage() {
             </p>
             <div className="flex gap-3 mt-6">
               <Button asChild>
-                <Link href="/register">Ozellikleri kullanmak icin kayit ol</Link>
+                <Link href="/register">
+                  Ozellikleri kullanmak icin kayit ol
+                </Link>
               </Button>
             </div>
           </div>
