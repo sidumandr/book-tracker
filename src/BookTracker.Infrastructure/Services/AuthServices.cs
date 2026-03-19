@@ -26,11 +26,10 @@ public class AuthService : IAuthService
     {
         EnsureJwtConfigValid();
 
-        // Normalizasyonu C# tarafında yapıyoruz (SQL'e temiz veri gönderiyoruz)
+        
         var emailNorm = dto.Email.Trim().ToLower();
         var usernameTrim = dto.Username.Trim();
 
-        // PostgreSQL uyumlu ToLower() kullanımı
         if (await _context.Users.AnyAsync(u => u.Email.ToLower() == emailNorm))
             throw new InvalidOperationException("Bu email zaten kullanılıyor.");
 
@@ -47,7 +46,6 @@ public class AuthService : IAuthService
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
-        // Kayıt sonrası JWT üretimi
         var token = GenerateJwtToken(user.Id, user.Email);
 
         return new AuthResponseDto(token, user.Email, user.Username);
@@ -57,7 +55,7 @@ public class AuthService : IAuthService
     {
         var emailNorm = dto.Email.Trim().ToLower();
 
-        // Sorgu içinde ToLowerInvariant yerine ToLower kullanarak çeviri hatasını çözdük
+        
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == emailNorm)
             ?? throw new UnauthorizedAccessException("Email veya şifre hatalı.");
 
@@ -84,7 +82,7 @@ public class AuthService : IAuthService
         if (string.IsNullOrWhiteSpace(raw))
             throw new InvalidOperationException("Jwt:Key or Jwt:Secret is missing.");
 
-        // Key'in güvenli yüklenmesi
+
         var jwtKey = raw.Trim();
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
         
